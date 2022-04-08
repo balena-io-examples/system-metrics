@@ -1,0 +1,11 @@
+version: '2'
+services:
+  system-metrics:
+    image: kb2ma/system-metrics
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      MQTT_ADDRESS: '127.0.0.1'
+    depends_on:
+        - "mqtt"
