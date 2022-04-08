@@ -1,7 +1,7 @@
 version: '2'
 services:
   sensor:
-    image: 192.168.1.100:5000/system-metrics
+    image: kb2ma/system-metrics
     restart: unless-stopped
     privileged: true
     network_mode: host
