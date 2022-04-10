@@ -24,7 +24,14 @@ Published msg: {'short_uuid': 04166f8, 'CPU': 1, 'Temp': 32}
 ```
 
 ## Configuration
-There is nothing to configure at present. CPU load and temperature are collected every 2.5 seconds.
+There is nothing to configure at present. CPU load and temperature are collected every 30 seconds.
 
 ## Next Steps
 We also have created a docker-compose [script](doc/balenaSense-example/docker-compose.yml) that integrates with the balenaSense application. You should be able to simply push that script like the example above to see the data graphically.
+
+## Publish to DBus (experimental)
+Describe how it works:
+
+* Manually install conf file
+* Set service variable PUBLISH_DBUS 1
+* Publishes CPU temperature readings to interface 'io.balena.system_metrics.values'

@@ -6,6 +6,7 @@
   "type":"module",
   "dependencies": {
     "async-mqtt": "^2.6.1",
+    "dbus": "^1.0.7",
     "systeminformation": "^5.6.10"
   },
   "devDependencies": {},

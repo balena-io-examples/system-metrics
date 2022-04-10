@@ -1,6 +1,6 @@
 import mqtt from 'async-mqtt'
 import si from 'systeminformation'
-// just for debugging with util.inspect, etc.
+import { default as DBus } from 'dbus'
 //import util from 'util'
 
 // async wrapper for MQTT client
@@ -10,6 +10,20 @@ let mqttClient = null
 const shortUuid = process.env.BALENA_DEVICE_UUID
         ? process.env.BALENA_DEVICE_UUID.slice(0, Math.min(process.env.BALENA_DEVICE_UUID.length, 7))
         : 'xxxxxxx'
+
+// Create a new DBus service, object and interface for system metrics values
+let dbusService = DBus.registerService('system', 'io.balena.system_metrics');
+let dbusObj = dbusService.createObject('/system_metrics');
+
+// Create interface
+let dbusIface = dbusObj.createInterface('io.balena.system_metrics.values');
+dbusIface.addSignal('values', {
+    types: [
+        DBus.Define(Number)
+    ]
+})
+dbusIface.update();
+
 
 /**
  * Connects to local MQTT topic. Retries twice if can't connect.
@@ -51,7 +65,7 @@ export async function getCpuTemp() {
     return Math.round(raw.main);
 }
 
-async function publishMetrics() {
+async function publishUserMetrics() {
     const svLoad = await getCpuUsage()
     const svTemp = await getCpuTemp()
     //await client.publish('sensors', "{'short_uuid': '97c8b8b', 'currentLoad': 10.0}");
@@ -65,13 +79,21 @@ async function publishMetrics() {
     }
 }
 
+async function publishCoreMetrics() {
+    const svTemp = await getCpuTemp()
+
+    dbusIface.emit('values', svTemp)
+}
+
 async function start() {
     try {
         await connectMqtt()
-        
+
         if (mqttClient) {
-            setInterval(publishMetrics, 2500)
+            setInterval(publishUserMetrics, 30000)
         }
+        setInterval(publishCoreMetrics, 10000)
+
     } catch(e) {
         console.error(e)
     }
