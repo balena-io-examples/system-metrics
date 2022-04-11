@@ -1,17 +1,14 @@
-FROM balenalib/%%BALENA_ARCH%%-debian-node:14-build as build
+FROM balenalib/%%BALENA_ARCH%%-alpine-node:14-build as build
 
-RUN apt-get update
-RUN apt-get install libdbus-1-dev libglib2.0-dev
+# Required since dbus package install compiles some code
+RUN apk add --no-cache dbus-dev
 
 # Install node dependencies
 COPY package*.json ./
 RUN npm install --production && npm cache clean --force && rm -rf /tmp/*
 
 
-FROM balenalib/%%BALENA_ARCH%%-debian-node:14-run as run
-
-RUN apt-get update
-RUN apt-get install libdbus-1-3
+FROM balenalib/%%BALENA_ARCH%%-alpine-node:14-run as run
 
 WORKDIR /app
 COPY --from=build ./node_modules ./node_modules
