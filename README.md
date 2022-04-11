@@ -30,8 +30,21 @@ There is nothing to configure at present. CPU load and temperature are collected
 We also have created a docker-compose [script](doc/balenaSense-example/docker-compose.yml) that integrates with the balenaSense application. You should be able to simply push that script like the example above to see the data graphically.
 
 ## Publish to DBus (experimental)
-Describe how it works:
+Added experimental support for publishing to DBus. This support would be convenient for the Supervisor to collect metrics since it already uses DBus. Presently publishes CPU temperature readings every 10 seconds to the `io.balena.system_metrics.values` interface.
 
-* Manually install conf file
-* Set service variable PUBLISH_DBUS 1
-* Publishes CPU temperature readings to interface 'io.balena.system_metrics.values'
+### Setup
+The DBus configuration is defined in `conf/system-metrics.conf`. You must manually install this configuration with the steps below:
+
+```
+mount -o remount,rw /
+# copy conf file to /etc/dbus-1/system.d
+mount -o remount,ro /
+systemctl restart dbus.service
+
+```
+
+After these steps you should see the temperature readings in `dbus-monitor`.
+
+```
+dbus-monitor --system interface='io.balena.system_metrics.values'
+```
