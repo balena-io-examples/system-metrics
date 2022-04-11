@@ -37,10 +37,9 @@ The DBus configuration is defined in `conf/system-metrics.conf`. You must manual
 
 ```
 mount -o remount,rw /
-# copy conf file to /etc/dbus-1/system.d
+# copy conf file to /etc/dbus-1/system.d directory
 mount -o remount,ro /
 systemctl restart dbus.service
-
 ```
 
 After these steps you should see the temperature readings in `dbus-monitor`.
