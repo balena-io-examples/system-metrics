@@ -24,7 +24,14 @@ Published msg: {'short_uuid': 04166f8, 'CPU': 1, 'Temp': 32}
 ```
 
 ## Configuration
-There is nothing to configure at present. CPU load and temperature are collected every 2.5 seconds.
+Environment variables you may configure are listed below. Variables may be defined as balena **Fleet** variables or **Device** variables. Presently the metrics collection interval is 2.5 seconds.
+
+**METRICS_REQUEST**,  default `currentLoad cpuTemperature mem` 
+
+Requests the default aspect for each provided metric. Metric names use the function name from the systeminformation project, for example [cpuTemperature](https://systeminformation.io/cpu.html).
+
+Presently the only available metrics are as listed for the default value. The `mem` metric value is the *active* memory for the device: used memory less cache and buffers.
+
 
 ## Next Steps
 We also have created a docker-compose [script](doc/balenaSense-example/docker-compose.yml) that integrates with the balenaSense application. You should be able to simply push that script like the example above to see the data graphically.

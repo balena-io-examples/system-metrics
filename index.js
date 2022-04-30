@@ -11,6 +11,23 @@ const shortUuid = process.env.BALENA_DEVICE_UUID
         ? process.env.BALENA_DEVICE_UUID.slice(0, Math.min(process.env.BALENA_DEVICE_UUID.length, 7))
         : 'xxxxxxx'
 
+// Dictionary of the aspect of a metric to use as the single default value to collect
+const defaultAspects = {
+    'cpuTemperature': 'main',
+    'currentLoad': 'currentLoad',
+    'mem': 'active'
+}
+
+// Dictionary of requested metrics as read from input text, including notes from parsing.
+// Contains:
+// - queryText: actual text for systeminformation
+// - isDefaultAspect: boolean for input text requests only the default metric value
+let requestMetrics = {}
+
+// Dictionary of request entries as expected by systeminformation.get().
+// Derived from requestMetrics.
+let requestQuery = {}
+
 /**
  * Connects to local MQTT topic. Retries twice if can't connect.
  *
@@ -41,25 +58,47 @@ async function connectMqtt() {
     } while(count < maxTries)
 }
 
-async function getCpuUsage() {
-    const raw = await si.currentLoad()
-    return Math.round(raw.currentLoad)
-}
+/**
+ * Parses provided requestText into requestMetrics object and then builds
+ * requestQuery object.
+ */
+function buildRequestMetrics(requestText) {
+    const requestList = requestText.split(' ')
+    
+    for (let metric of requestList) {
+        let requestObject = {}
+        requestObject.queryText = defaultAspects[metric]
+        requestObject.isDefaultAspect = true
 
-export async function getCpuTemp() {
-    const raw = await si.cpuTemperature();
-    return Math.round(raw.main);
+        if (requestObject.queryText) {
+            requestMetrics[metric] = requestObject
+        } else {
+            console.warn(`Metric name not understood: ${metric}`)
+        }
+    }
+    console.debug(`requestMetrics: ${JSON.stringify(requestMetrics)}`)
+
+    for (let metric in requestMetrics) {
+        requestQuery[metric] = requestMetrics[metric].queryText
+    }
+    console.debug(`requestQuery: ${JSON.stringify(requestQuery)}`)
 }
 
 async function publishMetrics() {
-    const svLoad = await getCpuUsage()
-    const svTemp = await getCpuTemp()
-    //await client.publish('sensors', "{'short_uuid': '97c8b8b', 'currentLoad': 10.0}");
-    const message = `{"short_uuid": "${shortUuid}", "CPU": ${svLoad}, "Temp": ${svTemp}}`
+    const values = await si.get(requestQuery)
+    let message = {}
+    message.short_uuid = shortUuid
+
+    // Assumes all metrics are defaults
+    for (let metric in values) {
+        let key = defaultAspects[metric]
+        message[metric] = values[metric][key]
+    }
 
     if (mqttClient) {
-        mqttClient.publish('sensors', message)
-        console.log(`Published msg: ${message}`)
+        const messageText = JSON.stringify(message)
+        mqttClient.publish('sensors', messageText)
+        console.log(`Published msg: ${messageText}`)
     } else {
         console.log("Can't publish; not connected")
     }
@@ -68,6 +107,12 @@ async function publishMetrics() {
 async function start() {
     try {
         await connectMqtt()
+
+        let requestText = process.env.METRICS_REQUEST
+        if (!requestText) {
+            requestText = 'currentLoad cpuTemperature mem'
+        }
+        buildRequestMetrics(requestText)
         
         if (mqttClient) {
             setInterval(publishMetrics, 2500)
