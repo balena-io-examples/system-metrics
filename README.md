@@ -28,9 +28,16 @@ Environment variables you may configure are listed below. Variables may be defin
 
 **METRICS_REQUEST**,  default `currentLoad cpuTemperature mem` 
 
-Requests the default aspect for each provided metric. Metric names use the function name from the systeminformation project, for example [cpuTemperature](https://systeminformation.io/cpu.html).
+Lists the metrics to collect. Each metric must be specified in one of two forms:
 
-Presently the only available metrics are as listed for the default value. The `mem` metric value is the *active* memory for the device: used memory less cache and buffers.
+| Form | Example | Notes |
+| ---- | ------- | ----- |
+| `metric/aspect`| cpuTemperature/max ||
+| `metric` |`cpuTemperature` |Uses the default aspect; for cpuTemperature this aspect is `main`|
+
+A `metric` is a function name from the systeminformation project, for example [cpuTemperature](https://systeminformation.io/cpu.html). An `aspect` is a particular result object for the metric as shown in the documentation.
+
+Not all systeminformation metrics have a default value.
 
 
 ## Next Steps

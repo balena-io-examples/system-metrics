@@ -18,10 +18,13 @@ const defaultAspects = {
     'mem': 'active'
 }
 
+// Character used to separate aspect from metric, like for 'mem/active'.
+const aspectSeparator = '/'
+
 // Dictionary of requested metrics as read from input text, including notes from parsing.
 // Contains:
-// - queryText: actual text for systeminformation
-// - isDefaultAspect: boolean for input text requests only the default metric value
+// - aspects: object of aspect names to include; value of property is not used
+// - isDefaultAspect: boolean for input text requests only the default metric value, like 'mem'
 let requestMetrics = {}
 
 // Dictionary of request entries as expected by systeminformation.get().
@@ -60,39 +63,81 @@ async function connectMqtt() {
 
 /**
  * Parses provided requestText into requestMetrics object and then builds
- * requestQuery object.
+ * requestQuery object. Expects requestText with space-separated items in the
+ * form '<metric>|<metric>/<aspect> ...', like:
+ *
+ *    cpuLoad mem/used mem/active
+ *
+ * If no aspect provided, uses 'defaultAspects' for that metric.
  */
 function buildRequestMetrics(requestText) {
     const requestList = requestText.split(' ')
     
-    for (let metric of requestList) {
-        let requestObject = {}
-        requestObject.queryText = defaultAspects[metric]
-        requestObject.isDefaultAspect = true
+    for (let item of requestList) {
+        let metric, aspect
+        let newRequest = {}
 
-        if (requestObject.queryText) {
-            requestMetrics[metric] = requestObject
+        // Create a newRequest for the item; determine if has an explicit aspect.
+        const aspectIndex = item.indexOf(aspectSeparator)
+        if (aspectIndex >= 0) {
+            metric = item.slice(0, aspectIndex)
+            aspect = item.slice(aspectIndex + 1, item.length)
+            newRequest.isDefaultAspect = false
         } else {
-            console.warn(`Metric name not understood: ${metric}`)
+            metric = item
+            aspect = defaultAspects[item]
+            if (!aspect) {
+                console.warn(`No default aspect for metric: ${item}`)
+                continue
+            }
+            newRequest.isDefaultAspect = true
         }
+
+        // Add the new request to the global 'requestMetrics'. Uses an 'aspects' object
+        // to collect the unique aspects.
+        let requestObject = requestMetrics[metric]
+        if (!requestObject) {
+            requestObject = newRequest
+            requestObject.aspects = {}
+            requestMetrics[metric] = newRequest
+        }
+        requestObject.aspects[aspect] = null
     }
     console.debug(`requestMetrics: ${JSON.stringify(requestMetrics)}`)
 
+    // Build the global 'requestQuery' object from the collected aspects for each metric.
     for (let metric in requestMetrics) {
-        requestQuery[metric] = requestMetrics[metric].queryText
+        let queryText = ''
+        for (let aspect in requestMetrics[metric].aspects) {
+            if (queryText) {
+                queryText = queryText + ', '
+                // can't use default aspect if more than one aspect for metric
+                requestMetrics[metric].isDefaultAspect = false
+            }
+            queryText = queryText + aspect
+        }
+        requestQuery[metric] = queryText
     }
     console.debug(`requestQuery: ${JSON.stringify(requestQuery)}`)
 }
 
 async function publishMetrics() {
     const values = await si.get(requestQuery)
+    console.debug(`values: ${JSON.stringify(values)}`)
     let message = {}
     message.short_uuid = shortUuid
 
-    // Assumes all metrics are defaults
     for (let metric in values) {
-        let key = defaultAspects[metric]
-        message[metric] = values[metric][key]
+        const metricValues = values[metric]
+        for (let aspect in metricValues) {
+            // Don't use aspect in property name if request uses default aspect, like 'mem'.
+            // There will be only a single aspect for this metric.
+            if (requestMetrics[metric].isDefaultAspect) {
+                message[metric] = metricValues[aspect]
+            } else {
+                message[`${metric}/${aspect}`] = metricValues[aspect]
+            }
+        }
     }
 
     if (mqttClient) {
