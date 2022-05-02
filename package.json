@@ -4,6 +4,7 @@
   "description": "balenaBlock to read system metrics",
   "main": "index.js",
   "type": "module",
+  "private": true,
   "dependencies": {
     "async-mqtt": "^2.6.1",
     "systeminformation": "^5.6.10"
