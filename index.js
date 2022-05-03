@@ -15,7 +15,8 @@ const shortUuid = process.env.BALENA_DEVICE_UUID
 const defaultAspects = {
     'cpuTemperature': 'main',
     'currentLoad': 'currentLoad',
-    'mem': 'active'
+    'mem': 'active',
+    'networkStats': 'tx_bytes, rx_bytes'
 }
 
 // Character used to separate aspect from metric, like for 'mem/active'.
