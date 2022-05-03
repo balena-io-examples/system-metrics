@@ -1,5 +1,5 @@
 {
-  "name": "system-metrics",
+  "name": "system-metrics-block",
   "version": "0.1.1",
   "description": "balenaBlock to read system metrics",
   "main": "index.js",
