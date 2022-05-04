@@ -158,10 +158,16 @@ async function start() {
         if (!requestText) {
             requestText = 'currentLoad cpuTemperature mem'
         }
+        console.log(`Request text: ${requestText}`)
         buildRequestMetrics(requestText)
-        
+
+        let readingInterval = process.env.READING_INTERVAL_MS   // in millis
+        if (!readingInterval) {
+            readingInterval = 10000
+        }
+        console.log(`Reading interval: ${readingInterval} ms`)
         if (mqttClient) {
-            setInterval(publishMetrics, 2500)
+            setInterval(publishMetrics, readingInterval)
         }
     } catch(e) {
         console.error(e)

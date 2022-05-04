@@ -24,11 +24,11 @@ Published msg: {'short_uuid': 04166f8, 'CPU': 1, 'Temp': 32}
 ```
 
 ## Configuration
-Environment variables you may configure are listed below. Variables may be defined as balena **Fleet** variables or **Device** variables. Presently the metrics collection interval is 2.5 seconds.
+Environment variables you may configure are listed in the sections below. Variables may be defined as balena **Fleet** variables or **Device** variables.
 
-**METRICS_REQUEST**,  default `currentLoad cpuTemperature mem` 
+### METRICS_REQUEST
 
-Lists the metrics to collect. Each metric must be specified in one of two forms:
+List of metrics to collect, space separated. Defaults to `currentLoad cpuTemperature mem`. Each metric must be specified in one of two forms:
 
 | Form | Example | Notes |
 | ---- | ------- | ----- |
@@ -38,6 +38,10 @@ Lists the metrics to collect. Each metric must be specified in one of two forms:
 A `metric` is a function name from the systeminformation project, for example [cpuTemperature](https://systeminformation.io/cpu.html). An `aspect` is a particular result object for the metric as shown in the documentation.
 
 Not all systeminformation metrics have a default value.
+
+### READING_INTERVAL_MS
+
+Interval between metrics readings, in milliseconds. Defaults to `10000`.
 
 
 ## Next Steps
