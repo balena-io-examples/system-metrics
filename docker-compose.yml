@@ -7,5 +7,3 @@ services:
     network_mode: host
     environment:
       MQTT_ADDRESS: '127.0.0.1'
-    depends_on:
-        - "mqtt"
