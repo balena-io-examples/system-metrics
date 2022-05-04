@@ -1,0 +1,27 @@
+name: system-metrics
+type: sw.application
+description: >-
+  Collect metrics on system operation like current load or disk I/O, and publish
+  to MQTT.
+assets:
+  repository:
+    type: blob.asset
+    data:
+      url: 'https://github.com/balena-io-examples/system-metrics'
+  logo:
+    type: blob.asset
+    data:
+      url: >-
+        https://raw.githubusercontent.com/balena-io-examples/system-metrics/master/logo.png
+data:
+  applicationEnvironmentVariables:
+    - METRICS_REQUEST: 'currentLoad cpuTemperature'
+    - READING_INTERVAL_MS: 10000
+  defaultDeviceType: raspberrypi4-64
+  supportedDeviceTypes:
+    - raspberrypi4-64
+    - fincm3
+    - raspberrypi3
+    - genericx86-64-ext
+    - intel-nuc
+version: 0.2.1
