@@ -9,6 +9,7 @@ FROM balenalib/%%BALENA_ARCH%%-alpine-node:14-run as run
 
 WORKDIR /app
 COPY --from=build ./node_modules ./node_modules
+RUN apk update && apk add --no-cache lsblk
 COPY index.js package.json ./
 
 # Start the container
