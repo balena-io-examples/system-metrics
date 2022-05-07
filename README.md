@@ -28,7 +28,7 @@ Environment variables you may configure are listed in the sections below. Variab
 
 ### METRICS_REQUEST
 
-List of metrics to collect, space separated. Defaults to `currentLoad cpuTemperature mem`. Each metric must be specified in one of two forms:
+List of metrics to collect, comma separated. Defaults to `currentLoad, cpuTemperature, mem`. Each metric must be specified in one of two forms:
 
 | Form | Example | Notes |
 | ---- | ------- | ----- |
