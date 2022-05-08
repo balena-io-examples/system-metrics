@@ -124,7 +124,7 @@ function buildRequestMetrics(requestText) {
 
 async function publishMetrics() {
     const values = await si.get(requestQuery)
-    console.debug(`values: ${JSON.stringify(values)}`)
+    //console.debug(`values: ${JSON.stringify(values)}`)
     let message = {}
     message.short_uuid = shortUuid
 
