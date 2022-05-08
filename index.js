@@ -122,6 +122,7 @@ function buildRequestMetrics(requestText) {
     console.debug(`requestQuery: ${JSON.stringify(requestQuery)}`)
 }
 
+/** Collects metrics and publishes them along with device UUID to MQTT. */
 async function publishMetrics() {
     const values = await si.get(requestQuery)
     //console.debug(`values: ${JSON.stringify(values)}`)
