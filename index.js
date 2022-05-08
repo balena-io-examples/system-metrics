@@ -64,15 +64,15 @@ async function connectMqtt() {
 
 /**
  * Parses provided requestText into requestMetrics object and then builds
- * requestQuery object. Expects requestText with space-separated items in the
- * form '<metric>|<metric>/<aspect> ...', like:
+ * requestQuery object. Expects requestText with comma-separated items in the
+ * form '<metric>|<metric>/<aspect>, ...', like:
  *
- *    cpuLoad mem/used mem/active
+ *    cpuLoad, mem/used, mem/active
  *
- * If no aspect provided, uses 'defaultAspects' for that metric.
+ * If no aspect provided, uses 'defaultAspects' entry for that metric.
  */
 function buildRequestMetrics(requestText) {
-    const requestList = requestText.split(' ')
+    const requestList = requestText.split(',').map(x => x.trim())
     
     for (let item of requestList) {
         let metric, aspect
@@ -124,7 +124,7 @@ function buildRequestMetrics(requestText) {
 
 async function publishMetrics() {
     const values = await si.get(requestQuery)
-    console.debug(`values: ${JSON.stringify(values)}`)
+    //console.debug(`values: ${JSON.stringify(values)}`)
     let message = {}
     message.short_uuid = shortUuid
 
@@ -156,7 +156,7 @@ async function start() {
 
         let requestText = process.env.METRICS_REQUEST
         if (!requestText) {
-            requestText = 'currentLoad cpuTemperature mem'
+            requestText = 'currentLoad, cpuTemperature, mem'
         }
         console.log(`Request text: ${requestText}`)
         buildRequestMetrics(requestText)

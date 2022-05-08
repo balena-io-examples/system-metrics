@@ -7,9 +7,11 @@ RUN npm install --production && npm cache clean --force && rm -rf /tmp/*
 
 FROM balenalib/%%BALENA_ARCH%%-alpine-node:14-run as run
 
+# Required for systeminformation disk metrics
+RUN apk update && apk add --no-cache lsblk
+
 WORKDIR /app
 COPY --from=build ./node_modules ./node_modules
-RUN apk update && apk add --no-cache lsblk
 COPY index.js package.json ./
 
 # Start the container
