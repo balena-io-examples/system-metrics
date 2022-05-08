@@ -16,7 +16,7 @@ services:
     ports:
         - '80'
   sensor:
-    image: kb2ma/system-metrics
+    build: ./system-metrics
     restart: unless-stopped
     privileged: true
     network_mode: host

@@ -1,7 +1,7 @@
 version: '2'
 services:
   sensor:
-    image: kb2ma/system-metrics
+    build: ./system-metrics
     restart: unless-stopped
     privileged: true
     network_mode: host
