@@ -6,7 +6,7 @@ Utilities like [systeminformation](https://systeminformation.io/) can collect de
 
 ## Getting Started
 
-We will use a docker-compose [example script](doc/simple-example/docker-compose.yml) that uses the metrics block to collect CPU load and temperature, and then forwards it to a spearate MQTT broker container. First create a multi-container fleet in balenaCloud and provision a device with balenaOS. See the [online docs](https://www.balena.io/docs/learn/getting-started/raspberrypi3/nodejs/) for details.
+We will use a docker-compose [example script](doc/simple-example/docker-compose.yml) that uses the system metrics block to collect CPU load and temperature and available memory, and then forwards it to a separate MQTT broker container. First create a multi-container fleet in balenaCloud and provision a device with balenaOS. See the [online docs](https://www.balena.io/docs/learn/getting-started/raspberrypi3/nodejs/) for details.
 
 Next push the docker-compose script to the balena builders, substituting your fleet's name for `<myFleet>` in the commands below.
 
@@ -19,8 +19,8 @@ Next push the docker-compose script to the balena builders, substituting your fl
 You should see data flowing to the MQTT broker like the log output below.
 
 ```
-Published msg: {'short_uuid': 04166f8, 'CPU': 0, 'Temp': 31}
-Published msg: {'short_uuid': 04166f8, 'CPU': 1, 'Temp': 32}
+Published msg: {'short_uuid': 04166f8, "currentLoad":0.8995528642244212,"cpuTemperature":32.9,"mem":4762161152}
+Published msg: {'short_uuid': 04166f8, "currentLoad":0.5756115873115185,"cpuTemperature":32.9,"mem":4762664960}
 ```
 
 ## Configuration
@@ -32,8 +32,8 @@ List of metrics to collect, comma separated. Defaults to `currentLoad, cpuTemper
 
 | Form | Example | Notes |
 | ---- | ------- | ----- |
-| `metric/aspect`| cpuTemperature/max ||
-| `metric` |`cpuTemperature` |Uses the default aspect; for cpuTemperature this aspect is `main`|
+| metric/aspect| `cpuTemperature/max` ||
+| metric |`cpuTemperature` |Uses the default aspect; for cpuTemperature this aspect is `main`|
 
 A `metric` is a function name from the systeminformation project, for example [cpuTemperature](https://systeminformation.io/cpu.html). An `aspect` is a particular result object for the metric as shown in the documentation.
 
