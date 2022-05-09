@@ -1,7 +1,7 @@
 version: '2'
 services:
   system-metrics:
-    image: kb2ma/system-metrics
+    build: .
     restart: unless-stopped
     privileged: true
     network_mode: host
