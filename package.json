@@ -1,6 +1,6 @@
 {
   "name": "system-metrics-block",
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "balenaBlock to read system metrics",
   "main": "index.js",
   "type": "module",
@@ -24,6 +24,6 @@
   },
   "homepage": "https://github.com/balena-io-examples/system-metrics",
   "versionist": {
-    "publishedAt": "2022-05-09T01:36:29.883Z"
+    "publishedAt": "2022-05-30T00:06:11.759Z"
   }
 }
