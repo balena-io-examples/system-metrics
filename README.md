@@ -28,16 +28,13 @@ Environment variables you may configure are listed in the sections below. Variab
 
 ### METRICS_REQUEST
 
-List of metrics to collect, comma separated. Defaults to `currentLoad, cpuTemperature, mem`. Each metric must be specified in one of two forms:
+List of metrics to collect, comma separated. A `metric` is a function name from the systeminformation project, for example [cpuTemperature](https://systeminformation.io/cpu.html). Defaults to `currentLoad, cpuTemperature, mem`. Each metric must be specified in one of these forms:
 
 | Form | Example | Notes |
 | ---- | ------- | ----- |
-| metric/aspect| `cpuTemperature/max` ||
-| metric |`cpuTemperature` |Uses the default aspect; for cpuTemperature this aspect is `main`|
-
-A `metric` is a function name from the systeminformation project, for example [cpuTemperature](https://systeminformation.io/cpu.html). An `aspect` is a particular result object for the metric as shown in the documentation.
-
-Not all systeminformation metrics have a default value.
+| metric/aspect| `cpuTemperature/max` |An `aspect` is a particular result object for the metric as shown in the documentation.|
+| metric |`cpuTemperature` |Uses the default aspect; for cpuTemperature this aspect is `main`. See [list](https://github.com/balena-io-examples/system-metrics/blob/d865284dffd83dc6b917ea78dc24c022cb432851/index.js#L15) of metrics with a default aspect.|
+| metric/(function parameter)| `networkStats/(wlp0s20f3)` |Some systeminformation metric functions accept parameters to qualify the source of reported data. In the example, `wlp0s20f3` is the WiFi interface. The function parameter applies to all requested aspects for the metric.|
 
 ### READING_INTERVAL_MS
 
