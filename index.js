@@ -1,7 +1,10 @@
+import log from 'loglevel'
 import mqtt from 'async-mqtt'
 import si from 'systeminformation'
 // just for debugging with util.inspect, etc.
 //import util from 'util'
+
+log.setLevel(process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'info')
 
 // async wrapper for MQTT client
 let mqttClient = null
@@ -47,16 +50,16 @@ async function connectMqtt() {
             count++
             if (!mqttClient) {
                 mqttClient = await mqtt.connectAsync(`mqtt://${process.env.MQTT_ADDRESS}`)
-                console.log(`Connected to mqtt://${process.env.MQTT_ADDRESS}`)
+                log.info(`Connected to mqtt://${process.env.MQTT_ADDRESS}`)
             }
             break
         } catch(e) {
-            console.warn("Cannot connect to local MQTT:", e)
+            log.warn("Cannot connect to local MQTT:", e)
             if (count < maxTries) {
-                console.log(`Retry in ${delay} seconds`)
+                log.info(`Retry in ${delay} seconds`)
                 await new Promise(r => setTimeout(r, delay * 1000))
             } else {
-                console.warn(`Retries exhausted`)
+                log.warn(`Retries exhausted`)
                 mqttClient = null  // indicates connection failed
             }
         }
@@ -88,7 +91,7 @@ function buildRequestMetrics(requestText) {
         if (detailIndex >= 0) {
             metric = item.slice(0, detailIndex)
             detail = item.slice(detailIndex + 1, item.length)
-            console.debug(`detail: ${detail}`)
+            log.debug(`detail: ${detail}`)
             if (detail[0] == '(' && detail[detail.length - 1] == ')') {
                 // trim off the parentheses
                 detail = detail.slice(1, detail.length - 1)
@@ -98,7 +101,7 @@ function buildRequestMetrics(requestText) {
             metric = item
             detail = defaultAspects[item]
             if (!detail) {
-                console.warn(`No default aspect for metric: ${item}`)
+                log.warn(`No default aspect for metric: ${item}`)
                 continue
             }
             newRequest.isDefaultAspect = true
@@ -119,7 +122,7 @@ function buildRequestMetrics(requestText) {
             requestObject.aspects[detail] = null
         }
     }
-    console.debug(`requestMetrics: ${JSON.stringify(requestMetrics)}`)
+    log.debug(`requestMetrics: ${JSON.stringify(requestMetrics)}`)
 
     // Build the global 'requestQuery' object from the collected function parameters
     // and aspects for each metric.
@@ -154,13 +157,12 @@ function buildRequestMetrics(requestText) {
         }
         requestQuery[metric] = requestQuery[metric] + queryText
     }
-    console.debug(`requestQuery: ${JSON.stringify(requestQuery)}`)
+    log.debug(`requestQuery: ${JSON.stringify(requestQuery)}`)
 }
 
 /** Collects metrics and publishes them along with device UUID to MQTT. */
 async function publishMetrics() {
     const values = await si.get(requestQuery)
-    //console.debug(`values: ${JSON.stringify(values)}`)
     let message = {}
     message.short_uuid = shortUuid
 
@@ -180,9 +182,9 @@ async function publishMetrics() {
     if (mqttClient) {
         const messageText = JSON.stringify(message)
         mqttClient.publish('sensors', messageText)
-        console.log(`Published msg: ${messageText}`)
+        log.debug(`Published msg: ${messageText}`)
     } else {
-        console.log("Can't publish; not connected")
+        log.warn("Can't publish; not connected")
     }
 }
 
@@ -194,19 +196,19 @@ async function start() {
         if (!requestText) {
             requestText = 'currentLoad, cpuTemperature, mem'
         }
-        console.log(`Request text: ${requestText}`)
+        log.info(`Request text: ${requestText}`)
         buildRequestMetrics(requestText)
 
         let readingInterval = process.env.READING_INTERVAL_MS   // in millis
         if (!readingInterval) {
             readingInterval = 10000
         }
-        console.log(`Reading interval: ${readingInterval} ms`)
+        log.info(`Reading interval: ${readingInterval} ms`)
         if (mqttClient) {
             setInterval(publishMetrics, readingInterval)
         }
     } catch(e) {
-        console.error(e)
+        log.error(e)
     }
 }
 
