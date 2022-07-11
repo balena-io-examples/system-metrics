@@ -40,6 +40,9 @@ List of metrics to collect, comma separated. A `metric` is a function name from 
 
 Interval between metrics readings, in milliseconds. Defaults to `10000`.
 
+### LOG_LEVEL
+
+Runtime logging level, one of `error`, `warn`, `info`, `debug`, `trace`; defaults to `info`.
 
 ## Next Steps
 We also have created a docker-compose [script](doc/balenaSense-example/docker-compose.yml) that integrates with the balenaSense application. You should be able to simply push that script like the example above to see the data graphically.
