@@ -38,7 +38,7 @@ List of metrics to collect, comma separated. A `metric` is a function name from 
 
 ### READING_INTERVAL_MS
 
-Interval between metrics readings, in milliseconds. Defaults to `10000`.
+Interval between metrics readings, in milliseconds. Defaults to `10000`. The container also initially waits 10 seconds before the first reading.
 
 ### LOG_LEVEL
 
