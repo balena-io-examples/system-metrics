@@ -205,6 +205,12 @@ async function start() {
         }
         log.info(`Reading interval: ${readingInterval} ms`)
         if (mqttClient) {
+            // Delay before initial publish to allow other services to register
+            // MQTT listeners. Publishing at startup is useful when the reading
+            // interval is long -- minutes or hours.
+            log.debug(`Delay 10 seconds before initial publish`)
+            await new Promise(r => setTimeout(r, 10000))
+            publishMetrics()
             setInterval(publishMetrics, readingInterval)
         }
     } catch(e) {
