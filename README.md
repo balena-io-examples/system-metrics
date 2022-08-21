@@ -36,9 +36,11 @@ List of metrics to collect, comma separated. A `metric` is a function name from 
 | metric |`cpuTemperature` |Uses the default aspect; for cpuTemperature this aspect is `main`. See [list](https://github.com/balena-io-examples/system-metrics/blob/d865284dffd83dc6b917ea78dc24c022cb432851/index.js#L15) of metrics with a default aspect.|
 | metric/(function parameter)| `networkStats/(wlp0s20f3)` |Some systeminformation metric functions accept parameters to qualify the source of reported data. In the example, `wlp0s20f3` is the WiFi interface. The function parameter applies to all requested aspects for the metric.|
 
-### READING_INTERVAL_MS
+### READING_INTERVAL_SEC
 
-Interval between metrics readings, in milliseconds. Defaults to `10000`. The container also initially waits 10 seconds before the first reading.
+Interval between metrics readings, in seconds. Defaults to `10`. The container also initially waits 10 seconds before the first reading.
+
+Alternatively, you may define the reading interval in milliseconds with the variable `READING_INTERVAL_MS`.
 
 ### LOG_LEVEL
 

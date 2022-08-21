@@ -199,9 +199,15 @@ async function start() {
         log.info(`Request text: ${requestText}`)
         buildRequestMetrics(requestText)
 
-        let readingInterval = process.env.READING_INTERVAL_MS   // in millis
+        // Reading interval may be supplied in millis or in seconds
+        let readingInterval = process.env.READING_INTERVAL_MS
         if (!readingInterval) {
-            readingInterval = 10000
+            if (process.env.READING_INTERVAL_SEC) {
+                readingInterval = process.env.READING_INTERVAL_SEC * 1000
+            }
+            if (!readingInterval) {
+                readingInterval = 10000
+            }
         }
         log.info(`Reading interval: ${readingInterval} ms`)
         if (mqttClient) {
