@@ -224,10 +224,13 @@ async function start() {
             await new Promise(r => setTimeout(r, 10000))
             publishMetrics()
             setInterval(publishMetrics, readingInterval)
+        } else {
+            process.exitCode = 1
         }
 
     } catch(e) {
         log.error(e)
+        process.exitCode = 1
     }
 }
 
