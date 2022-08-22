@@ -6,7 +6,7 @@ import si from 'systeminformation'
 
 log.setLevel(process.env.LOG_LEVEL ? process.env.LOG_LEVEL : 'info')
 
-// async wrapper for MQTT client
+// Async wrapper for MQTT client; may remain null to run standalone.
 let mqttClient = null
 
 // A device must have a UUID, but allow none for local testing.
@@ -179,18 +179,22 @@ async function publishMetrics() {
         }
     }
 
+    const messageText = JSON.stringify(message)
     if (mqttClient) {
-        const messageText = JSON.stringify(message)
         mqttClient.publish('sensors', messageText)
         log.debug(`Published msg: ${messageText}`)
     } else {
-        log.warn("Can't publish; not connected")
+        log.info(`Readings: ${messageText}`)
     }
 }
 
 async function start() {
     try {
-        await connectMqtt()
+        if (process.env.MQTT_ADDRESS) {
+            await connectMqtt()
+        } else {
+            log.info("MQTT_ADDRESS not defined; running standalone")
+        }
 
         let requestText = process.env.METRICS_REQUEST
         if (!requestText) {
@@ -210,7 +214,9 @@ async function start() {
             }
         }
         log.info(`Reading interval: ${readingInterval} ms`)
-        if (mqttClient) {
+        // Don't publish if not connected to MQTT and not running standalone;
+        // this scenario is an error.
+        if (mqttClient || !process.env.MQTT_ADDRESS) {
             // Delay before initial publish to allow other services to register
             // MQTT listeners. Publishing at startup is useful when the reading
             // interval is long -- minutes or hours.
@@ -219,6 +225,7 @@ async function start() {
             publishMetrics()
             setInterval(publishMetrics, readingInterval)
         }
+
     } catch(e) {
         log.error(e)
     }
