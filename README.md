@@ -4,6 +4,8 @@
 
 Utilities like [systeminformation](https://systeminformation.io/) can collect device performance metrics like CPU load, network throughput, and available storage. The System Metrics block uses systeminformation to forward metrics to the balenaBlock ecosystem via MQTT. From there you can graph the data or forward it to the cloud with one of the other available blocks.
 
+Alternatively, when available resources are constrained, the block may be run as a standalone service. See the MQTT_ADDRESS variable in the Configuration section below.
+
 ## Getting Started
 
 We will use a docker-compose [example script](doc/simple-example/docker-compose.yml) that uses the system metrics block to collect CPU load and temperature and available memory, and then forwards it to a separate MQTT broker container. First create a multi-container fleet in balenaCloud and provision a device with balenaOS. See the [online docs](https://www.balena.io/docs/learn/getting-started/raspberrypi3/nodejs/) for details.
@@ -45,6 +47,10 @@ Alternatively, you may define the reading interval in milliseconds with the vari
 ### LOG_LEVEL
 
 Runtime logging level, one of `error`, `warn`, `info`, `debug`, `trace`; defaults to `info`.
+
+### MQTT_ADDRESS
+
+This variable is required for services to find the MQTT broker. Usually it is defined in the `docker-compose.yml` file, like in the [example](doc/simple-example/docker-compose.yml), so you don't need to explicitly define it for a fleet. However, you also may run System Metrics as a standalone block that outputs to the system log. In this case either don't define MQTT_ADDRESS in your `docker-compose.yml`, or override it to be blank for the fleet or device.
 
 ## Next Steps
 We also have created a docker-compose [script](doc/balenaSense-example/docker-compose.yml) that integrates with the balenaSense application. You should be able to simply push that script like the example above to see the data graphically.
